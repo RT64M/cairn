@@ -81,6 +81,39 @@ All files in this diagram except root `AGENTS.md` live under `.cairn/`.
 - **Active loop:** `fix / fix-plan → TODO ⇄ HUMAN`. `fix` archives correct plan descriptions on demand; after user final confirmation, `fix-plan` writes and annotates `plan.md`, archives first, then TODO is derived from the revised plan.
 - Stable foundation and conditional supplements each own one concern; closed batches move to `.cairn/archive/` so history is preserved without cluttering the active set.
 
+## ✦ What the file set buys you
+
+Everything above is machinery. These are the two payoffs it exists for.
+
+### A new session picks the project up in one read
+
+Switch agents mid-project, open a fresh session a month later, or hand the repo to someone new — ramp-up is a fixed, bounded read:
+
+`AGENTS.md` → `NICKNAME.md` → `ARCHITECTURE.md` → open `fix_*` → open `fix-plan_*` → `HUMAN.md` → `TODO.md` → `plan.md`
+
+That order answers, in sequence: how we work here → what the local vocabulary means → how the code is laid out → what feedback is still open → what the plan is being changed into → what is waiting on a human → what is in flight → what the project is supposed to become. An agent that has read those files has effectively been handed over to.
+
+The set is bounded *by design*: 4 required files plus at most 6 conditional types, with closed batches moved out to `.cairn/archive/`. It stays loadable in one pass no matter how many months the project runs — no scrolling chat history, no reading 300 commits.
+
+### Any change traces back to the thinking behind it
+
+The constraints exist so this chain is always walkable, from any end:
+
+```text
+a line of code
+  └─ TODO step ──(source field)──▶ plan.md item  or  fix_<desc>.md batch
+        │                              └─(source marker + date)──▶ .cairn/archive/fix-plan_<desc>-YYYYMMDD.md
+        │                                                              └─ the discussion, the alternatives, the confirmation
+        └─(on completion)──▶ .cairn/archive/done-YYYYMMDD.md
+                                └─ how it was actually executed and verified
+```
+
+- **From a plan item → why it exists.** Every added or revised item in `plan.md` carries exactly one source marker with dates. Follow it into `.cairn/archive/` and you land on the batch that produced it: the discussion scope, what the agent proposed, and what the user actually approved.
+- **From a change → why it was done that way.** Its TODO step names its source; that source is a plan item or a `fix_<desc>.md` batch; every batch header records content, time, source, and scope.
+- **From an abandoned approach → why it was dropped.** Rejected work is never deleted. It stays as `[!] modified: <reason>` or `[~] removed: <reason / target item>` — precisely the thing git can never show you, because there was no commit.
+
+Ordinary tooling gives you the first hop and stops. A commit message tells you *what* changed; it rarely tells you which discussion authorized the change, or which alternative was rejected getting there.
+
 ## ✦ The 60-second quickstart
 
 ```bash
@@ -157,6 +190,7 @@ The following are Cairn's core hard constraints. Each one maps directly to a spe
 | Understand why files are split this way | [`design/en/overview.md`](design/en/overview.md) |
 | See how agents act in different scenarios | [`workflow/en/01-new-project.md`](workflow/en/01-new-project.md) … [`workflow/en/07-parallel-agent-intervention.md`](workflow/en/07-parallel-agent-intervention.md) |
 | See a real-looking project mid-flight | [`example/en/AGENTS.md`](example/en/AGENTS.md), [`example/en/.cairn/TODO.md`](example/en/.cairn/TODO.md), [`example/en/.cairn/fix_audit-batch.md`](example/en/.cairn/fix_audit-batch.md) |
+| Walk the traceability chain on a real example | [`example/en/.cairn/plan.md`](example/en/.cairn/plan.md) (source markers) → [`example/en/.cairn/archive/fix-plan_ticket-merge-20260506.md`](example/en/.cairn/archive/fix-plan_ticket-merge-20260506.md) (the discussion behind them) |
 
 ## ✦ FAQ
 
@@ -196,7 +230,11 @@ A: Yes. It is a strict requirement of the protocol. Each sync costs one line of 
 
 **Q: When should I not use Cairn?**
 
-A: Don't use it for a solo project with a single agent — it's overkill there; a rules file and a TODO list will do. Cairn's overhead (10 file types, mandatory sync, a restricted write path into the plan) only pays off when all of these hold: the project spans months, multiple agents take turns on the same code, and human collaborators need to receive work agents cannot complete. This repository itself does not use Cairn — it's a protocol document with no cross-session execution state to track.
+A: Short, one-off work doesn't need it. If a task is expected to finish within a single plan cycle — no follow-up sessions, no plan revisions, nothing to hand back to a human — a rules file and a TODO list will do, and Cairn's sync cost won't buy you anything.
+
+Cairn starts paying for itself as soon as **any one** of these holds: the work spans multiple sessions or more than a few weeks; several agents take turns on the same code; human collaborators need to receive work agents cannot complete; or the plan itself will be revised more than once. A long-running solo project with a single agent qualifies too — agent amnesia doesn't spare you just because you're working alone.
+
+This repository itself does not use Cairn — it's a protocol document with no cross-session execution state to track.
 
 ## ✦ Non-goals
 
@@ -280,6 +318,39 @@ Cairn 用 **职责边界清晰的几个文件** 给每类信息一个固定家�
 - 主流程闭环：**fix / fix-plan → TODO ⇄ HUMAN**；fix 归档时按需修正 plan 描述偏差，fix-plan 在用户最终确认后立即写入并标注 plan 来源，然后优先归档，再从新版 plan 拆 TODO。
 - 稳定地基与按需补充各司其职，归档进 `.cairn/archive/` 不删除历史。
 
+### ✦ 这套文件换来什么
+
+上面都是机制，下面是它存在的两个理由。
+
+#### 换会话、换代理，一次读完就等于交接完毕
+
+项目做到一半换个代理、一个月后开一个新会话、或者把仓库交给新来的人——上手成本是一段固定且有界的阅读：
+
+`AGENTS.md` → `NICKNAME.md` → `ARCHITECTURE.md` → 未归档 `fix_*` → 未归档 `fix-plan_*` → `HUMAN.md` → `TODO.md` → `plan.md`
+
+这个顺序依次回答：这里怎么协作 → 项目黑话什么意思 → 代码怎么摆 → 还有哪些反馈没收敛 → 计划正在被改成什么样 → 什么事卡在人类那边 → 手上正在做什么 → 这个项目最终要长成什么。读完这几个文件的代理，等于已经被交接过一遍。
+
+而且这个集合**在设计上就是有界的**：4 个核心文件 + 最多 6 类按需文件，收敛的批次全部移出到 `.cairn/archive/`。无论项目跑了多少个月，它都能一次性读进上下文——不用翻聊天记录，也不用读 300 个 commit。
+
+#### 任何一次改动，都能反查回当初的思考过程
+
+那些约束存在的意义，就是让下面这条链从任意一端都走得通：
+
+```text
+一处代码改动
+  └─ TODO 条目 ──(来源字段)──▶ plan.md 条目  或  fix_<desc>.md 批次
+        │                          └─(来源标注 + 日期)──▶ .cairn/archive/fix-plan_<desc>-YYYYMMDD.md
+        │                                                    └─ 当初的讨论范围、备选方案、用户确认结论
+        └─(完成归档)──▶ .cairn/archive/done-YYYYMMDD.md
+                          └─ 实际怎么执行、怎么验证的
+```
+
+- **从 plan 条目 → 查它为什么存在。** `plan.md` 里每条新增或修订的条目都带且只带一个来源标注（含日期）。顺着它进 `.cairn/archive/`，就能找到产出它的那个批次：当时讨论了什么、代理提了什么建议、用户最终确认了哪些。
+- **从一处改动 → 查它为什么这么做。** 对应 TODO 条目写明来源，来源是 plan 条目或 `fix_<desc>.md` 批次，而每个批次的文件头都记录了内容、时间、来源和影响范围。
+- **从一个被放弃的方案 → 查它为什么被放弃。** 被否决的工作不删除，而是留成 `[!] 修改：<原因>` 或 `[~] 移除：<原因 / 替代条目>`——这恰恰是 git 永远给不了你的东西，因为它根本没有产生 commit。
+
+常规工具只能给你第一跳就断了。commit message 告诉你**改了什么**，但很少告诉你是哪次讨论授权了这次改动，以及路上否掉了哪个备选方案。
+
 ### ✦ 60 秒上手
 
 ```bash
@@ -356,6 +427,7 @@ cd your-project
 | 理解为什么这样分文件 | [`design/cn/overview.md`](design/cn/overview.md) |
 | 看代理在不同场景怎么走流程 | [`workflow/cn/01-new-project.md`](workflow/cn/01-new-project.md) … [`workflow/cn/07-parallel-agent-intervention.md`](workflow/cn/07-parallel-agent-intervention.md) |
 | 看真实项目跑起来长什么样 | [`example/cn/AGENTS.md`](example/cn/AGENTS.md)、[`example/cn/.cairn/TODO.md`](example/cn/.cairn/TODO.md)、[`example/cn/.cairn/fix_audit-batch.md`](example/cn/.cairn/fix_audit-batch.md) |
+| 在真实样例上走一遍追溯链 | [`example/cn/.cairn/plan.md`](example/cn/.cairn/plan.md)（来源标注）→ [`example/cn/.cairn/archive/fix-plan_ticket-merge-20260506.md`](example/cn/.cairn/archive/fix-plan_ticket-merge-20260506.md)（标注背后的讨论） |
 
 ### ✦ FAQ
 
@@ -395,7 +467,11 @@ A：是。这是协议的强制约束。每次同步只需一行 markdown，换�
 
 **Q：什么情况下不该用 Cairn？**
 
-A：单人 + 单代理的小项目不要用，会是过度设计——一个 rules 文件加一份 TODO 就够了。Cairn 的成本（10 类文件、强制同步、受限的 plan 写入路径）只有在下面这些条件同时成立时才划算：项目跨越数月、多个代理会轮流接手同一份代码、有人类协作者需要接收无法由代理完成的事项。本仓库自身就不使用 Cairn：它是一份协议文档，没有需要跨会话追踪的执行状态。
+A：一次性的短期任务不需要。如果一个任务预计在一个 plan 周期内就能收尾——不会跨越多次会话、不需要修订计划、也没有要交还给人类的事项——那么一个 rules 文件加一份 TODO 就够了，Cairn 的同步成本换不回什么。
+
+反过来，只要下面**任意一条**成立，Cairn 就开始回本：工作会跨越多次会话或数周以上、多个代理会轮流接手同一份代码、有人类协作者需要接收代理无法完成的事项、计划本身会被反复修订。单人 + 单代理的长期项目同样适用——「代理会失忆」这件事，一个人也躲不掉。
+
+本仓库自身就不使用 Cairn：它是一份协议文档，没有需要跨会话追踪的执行状态。
 
 ### ✦ 不做什么
 

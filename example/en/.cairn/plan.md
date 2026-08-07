@@ -21,6 +21,7 @@ The current phase delivers an MVP that operations teams can pilot:
 - Basic SLA alerts.
 - Chinese and English interface copy.
 - Audit-log export.
+- Duplicate ticket merge. (source: fix-plan_ticket-merge, 2026-05-06)
 
 ## Non-Goals
 
@@ -50,6 +51,7 @@ The current phase delivers an MVP that operations teams can pilot:
 | SLA Policy | Response and resolution time policy |
 | Audit Event | Sensitive-operation record |
 | Notification | Reminder task for owners and leads |
+| Merge Record | Merged tickets, primary ticket, actor, and undo window (source: fix-plan_ticket-merge, 2026-05-06) |
 
 ## Key Flows
 
@@ -65,9 +67,13 @@ After a ticket enters the queue, support can claim it or a lead can bulk assign 
 
 A lead filters a group of tickets and bulk assigns them by team, owner, priority, and SLA risk. The system must prevent duplicate submission, permission leakage, and invisible partial failures.
 
-### Note Auditing
+### Ticket Merge (source: fix-plan_ticket-merge, 2026-05-06)
 
-Notes pass through baseline validation before saving. Notes involving refunds, privacy, or escalated complaints are marked as audit focus items and searchable from the audit page.
+When the same customer submits duplicate tickets within 24 hours, a lead can pick a primary ticket and merge the rest into it manually. Merged tickets become read-only and their detail pages keep a link to the primary ticket. A 10-minute undo window applies; after it expires the merge cannot be undone. The merge operation writes an audit event. This phase ships manual merge only — no duplicate auto-detection, and merge is not part of the bulk-action entry point.
+
+### Note Auditing (source: plan initialization, 2026-05-05; last revised: fix-plan_ticket-merge, 2026-05-06)
+
+Notes pass through baseline validation before saving. Notes involving refunds, privacy, or escalated complaints are marked as audit focus items and searchable from the audit page. On a ticket merge, internal and cross-team notes move to the primary ticket and keep their original source markers; audit notes do not move, so audit trails never spill across tickets.
 
 ## Acceptance Criteria
 
@@ -78,6 +84,8 @@ Notes pass through baseline validation before saving. Notes involving refunds, p
 - All user-visible copy renders through i18n keys.
 - Core interfaces have contract or integration test coverage.
 - Real SSO, real accounts, external notification verification, or notification-policy decisions that affect acceptance move to `HUMAN.md`.
+- Merged tickets render read-only on the detail page and link to their primary ticket. (source: fix-plan_ticket-merge, 2026-05-06)
+- Audit trails do not spill across tickets after a merge; audit notes on merged tickets stay with the original ticket. (source: fix-plan_ticket-merge, 2026-05-06)
 
 ## Documentation Boundaries
 

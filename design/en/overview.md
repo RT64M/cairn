@@ -54,6 +54,11 @@ AGENTS.md          -> bootstrap protocol for entry, sync, and file updates
 - **Interfaces change with code**: external interface signature changes must update `INTERFACE.md`.
 - **Test methods and test results are separate**: `TEST.md` says how to test; `fix_<desc>.md` records what testing found.
 
+The principles above are *how* the split works. The two below are *why it is worth doing* — they are the goals every constraint above serves:
+
+- **Bounded and loadable in one pass**: the number of file types is capped (4 required plus at most 6 conditional), and closed batches always move out to `.cairn/archive/`. The active set therefore does not grow with project age, so any new session or new agent completes handover by reading the current state once, without digging through chat history or commit logs.
+- **Every decision stays traceable**: the single source marker in `plan.md`, the four-part header on every fix / fix-plan batch (content, time, source, scope), the source field on TODO items, the stated reason on `[!]` / `[~]`, and the preserved batches in `archive/` together form one chain that is walkable from either end — from any change back to the discussion that authorized it, and from any plan item forward to when it was written and revised. Rejected approaches stay on that chain too, precisely because they produce no commit and git cannot record them.
+
 ## Detailed Design
 
 - [AGENTS.md](agents.md)

@@ -8,7 +8,7 @@
 
 - [x] 8.1 Define the bulk-assignment entry point, permissions, and error-display scope
 - [x] 8.2 Update bulk-assignment interface contracts in `INTERFACE.md`
-- [x] 8.3 Update `Assignment` history notes in `plan.md`
+- [x] 8.3 Verify that the `Assignment` history display scope matches the existing description in `plan.md`; no divergence to write back (this step's source is the plan, so it must not rewrite the plan directly; any divergence needs its own `fix_<desc>.md`, written back on archive)
 - [!] 8.4 Send notifications immediately after bulk assignment  Revised: see 8.9; notifications move to an async queue so the page does not wait for external services
 - [x] 8.5 Add frontend interaction copy keys to the error-shape notes in `INTERFACE.md`
 - [ ] 8.6 Complete the acceptance matrix for partial-failure cases
@@ -41,6 +41,17 @@
 - [x] 10.5 Create `.cairn/HUMAN.md`
 - [x] 10.6 Create `archive/` examples
 - [ ] 10.7 Check documentation links
+
+### Step 11: Duplicate Ticket Merge (source: Key Flows / Ticket Merge in plan.md, written by archive/fix-plan_ticket-merge-20260506.md)
+
+- [ ] 11.1 Define the merge entry point, permissions, and primary-ticket selection rules
+- [ ] 11.2 Define the read-only state and primary-ticket link for merged tickets
+- [ ] 11.3 Define note-migration scope: internal and cross-team notes move, audit notes do not
+- [ ] 11.4 Define the 10-minute undo window boundary and expiry behavior
+- [ ] 11.5 Write an audit event for the merge operation
+- [ ] 11.6 Synchronize merge interface contracts and error rules in `INTERFACE.md`
+- [ ] 11.7 Carry the detail-page read-only acceptance noted in the Step 7 archive (see archive/done-20260505.md)
+- [ ] 11.8 Update the regression scope in `TEST.md`
 
 ## Archived
 
